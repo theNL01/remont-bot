@@ -4,7 +4,6 @@
 
 import json
 import logging
-import asyncio
 import requests
 from datetime import datetime
 from telegram import Update, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
@@ -26,7 +25,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     ]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-
     await update.message.reply_text(
         "👋 Здравствуйте!\n\n"
         "Это бот компании *Ремонт Загорянка* — ремонт домов, коттеджей и дач под ключ "
@@ -54,7 +52,6 @@ async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE)
     comment = data.get("comment", "—")
     tg_user = data.get("tg_user", "")
     tg_name = data.get("tg_name", "")
-
     tg_link = f"@{tg_user}" if tg_user else tg_name or "неизвестен"
 
     notification = (
@@ -74,7 +71,6 @@ async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE)
         parse_mode="Markdown"
     )
 
-    # Записываем в Google Sheets
     try:
         requests.post(SHEETS_URL, json={
             "name":    name,
@@ -106,7 +102,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     ]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-
     await update.message.reply_text(
         "Для оформления заявки нажмите кнопку ниже 👇\n\n"
         "Или звоните: *+7 (999) 123-45-67*\n"
@@ -116,14 +111,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def main():
+def main():
+    print("Бот запущен!")
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_webapp_data))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-    print("Бот запущен!")
-    await app.run_polling()
+    app.run_polling()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
