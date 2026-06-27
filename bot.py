@@ -1,11 +1,10 @@
 """
 Бот "Ремонт Загорянка" — принимает заявки через Telegram Mini App
-Установка: pip3 install python-telegram-bot --user
-Запуск: python3 bot.py
 """
 
 import json
 import logging
+import asyncio
 import requests
 from datetime import datetime
 from telegram import Update, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
@@ -117,14 +116,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-def main():
+async def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_webapp_data))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     print("Бот запущен!")
-    app.run_polling()
+    await app.run_polling()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
